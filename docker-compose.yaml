@@ -1,0 +1,8 @@
+services:
+
+  app:
+    container_name: app
+    build:
+      context: .
+    ports:
+      - "${APP_PORT}:${APP_PORT}"

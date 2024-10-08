@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Care AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Skin Care AI</h1>
+
+        <!-- Форма для загрузки изображения -->
+        <div class="flex justify-center">
+            <form id="uploadForm" class="w-full max-w-md">
+                <input type="file" id="imageInput" name="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" accept="image/*">
+                <button type="submit" class="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded">Upload Image</button>
+            </form>
+        </div>
+
+        <!-- Контейнер для результатов -->
+        <div id="results" class="mt-8 flex justify-center gap-8 flex-wrap"></div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const resultsDiv = document.getElementById('results');
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select an image');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('/upload/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            resultsDiv.innerHTML = ''; // Очистить предыдущие результаты
+
+            if (result.success) {
+                result.data.forEach(fileUrl => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = `${fileUrl}`;
+                    imgElement.className = 'max-w-sm mx-auto shadow-lg';
+                    resultsDiv.appendChild(imgElement);
+                });
+            } else {
+                alert('Error: ' + result.error);
+            }
+        });
+    </script>
+</body>
+</html>
