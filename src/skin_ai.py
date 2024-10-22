@@ -4,16 +4,15 @@ import numpy as np
 import mediapipe as mp
 from typing import List
 import logging
-from ultralytics import YOLO
+
+from src import clip_detection, yolo_detection
+from src.config import PROCESSED_PATH
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-PROCESSED_PATH = "files/processed"
 os.makedirs(PROCESSED_PATH, exist_ok=True)
-
-acne_model = YOLO("acne.pt")
 
 
 def increase_contrast(input_image):
@@ -90,15 +89,6 @@ def remove_face(image):
             image = cv2.bitwise_and(image, mask)
 
     return image
-
-
-def detect_acne_with_yolo(image_path: str):
-    result = acne_model(image_path)
-    file_name = os.path.basename(image_path)
-    name, ext = os.path.splitext(file_name)
-    save_path = os.path.join(PROCESSED_PATH, f"{name}_yolo_acne{ext}")
-    result[0].save(filename=save_path, labels=False, conf=False)
-    return os.path.basename(save_path)
 
 
 def detect_acne(image):
@@ -188,13 +178,14 @@ def process_image(image_path: str) -> List[str]:
     if image is None:
         raise ValueError(f"Unable to read image at {image_path}")
 
-    yolo_acne_path = detect_acne_with_yolo(image_path)
+    yolo_path = yolo_detection.process_image(image_path)
+    clip_path = clip_detection.process_image(image_path, 64)
 
     acne_image = detect_acne(image.copy())
     redness_image = detect_redness(image.copy())
     uneven_tone_image = detect_uneven_tone(image.copy())
 
-    paths = [yolo_acne_path]
+    paths = [yolo_path, clip_path]
     for img, problem in (
         (acne_image, "acne"),
         (redness_image, "redness"),

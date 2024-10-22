@@ -6,15 +6,17 @@
 Пользователи могут загружать свои фотографии, а в ответ получат несколько изображений с обозначенными областями интереса.
 
 ## ⭐️ Запуск приложения
+Скачайте необходимые модели и разместите их в директории `/models`: 
+- [models/yolo.pt](https://huggingface.co/Tinny-Robot/acne/resolve/main/acne.pt)
+- [models/ViT-B-16.pt](https://openaipublic.azureedge.net/clip/models/5806e77cd80f8b59890b7e101eabd078d9fb84e6937f9e85e4ecb61988df416f/ViT-B-16.pt)
 
-Запустите приложение через докер:
+Установите зависимости:
 ```bash
-docker-compose build
-docker-compose up
+pip install -r requirements.txt
 ```
-Или через утилиту make:
+Запустите сервер
 ```bash
-make docker-run
+python src/server.py
 ```
 ## 🖼️ Пример работы приложения
-![files/example.png](files/example.png)
+![files/example.jpg](files/example.jpg)
