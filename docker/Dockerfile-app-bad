@@ -1,0 +1,12 @@
+FROM python:3.12
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+RUN apt update && apt install -y \
+  libgl1-mesa-glx libglib2.0-0 git\
+  && apt clean \
+  && rm -rf /var/lib/apt/lists/*
+
+CMD python -m src.server -m yolo -p 8000

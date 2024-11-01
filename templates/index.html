@@ -90,7 +90,7 @@
 
                 if (result.success) {
                     resultsDiv.innerHTML = '';
-                    const titles = ['Yolo Acne Detection', 'CLIP Acne Detection', 'Acne Detection', 'Redness Detection', 'Uneven Tone Detection'];
+                    const titles = ['Model\'s Acne Detection', 'Acne Detection', 'Redness Detection',];
                     result.data.forEach((fileUrl, index) => {
                         const card = createImageCard(fileUrl, titles[index]);
                         resultsDiv.appendChild(card);

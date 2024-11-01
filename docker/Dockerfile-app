@@ -1,0 +1,28 @@
+FROM python:3.12
+
+WORKDIR /app
+VOLUME files/processed files/processed
+
+ARG MODEL=yolo
+ENV MODEL=$MODEL
+
+RUN apt update && apt install -y \
+  libgl1-mesa-glx libglib2.0-0 git\
+  && apt clean \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY docker/scripts/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY docker/scripts/model_loader.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/model_loader.sh
+
+COPY ../requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY ../templates templates/
+COPY ../src src/
+
+RUN sh -c "/usr/local/bin/model_loader.sh $MODEL"
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["-p", "8000"]

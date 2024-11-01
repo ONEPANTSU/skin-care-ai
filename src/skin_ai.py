@@ -5,7 +5,6 @@ import mediapipe as mp
 from typing import List
 import logging
 
-from src import clip_detection, yolo_detection
 from src.config import PROCESSED_PATH
 
 logging.basicConfig(
@@ -76,7 +75,7 @@ def remove_face(image):
                     181,
                     146,
                     61,
-                ]  # Контур рта
+                ]
 
                 left_eye_pts = landmarks[eye_indices[: len(eye_indices) // 2]]
                 right_eye_pts = landmarks[eye_indices[len(eye_indices) // 2 :]]
@@ -133,26 +132,6 @@ def detect_redness(image):
     return image
 
 
-def detect_uneven_tone(image):
-    logging.info("Detecting uneven tone")
-    image_without_bg = remove_background(image.copy())
-    removed_face = remove_face(image_without_bg.copy())
-    contrasted = increase_contrast(removed_face.copy())
-    gray = cv2.cvtColor(contrasted, cv2.COLOR_BGR2GRAY)
-    uneven_tone_image = cv2.Laplacian(gray, cv2.CV_64F)
-    uneven_tone_image = np.uint8(np.absolute(uneven_tone_image))
-    _, mask = cv2.threshold(uneven_tone_image, 30, 255, cv2.THRESH_BINARY_INV)
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    mask = cv2.erode(mask, kernel, iterations=2)
-    mask = cv2.dilate(mask, kernel, iterations=2)
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    filtered_contours = [
-        contour for contour in contours if 500 < cv2.contourArea(contour) < 1000000
-    ]
-    cv2.drawContours(image, filtered_contours, -1, (255, 0, 0), 2)
-    return image
-
-
 def save_image(image, problem_type, original_image_path):
     logging.info(f"Saving {problem_type} image")
     file_name = os.path.basename(original_image_path)
@@ -172,24 +151,28 @@ def remove_background(image):
     return image * mask2[:, :, np.newaxis]
 
 
-def process_image(image_path: str) -> List[str]:
+def process_image(image_path: str, model: str) -> List[str]:
     logging.info(f"Processing image: {image_path}")
     image = cv2.imread(image_path)
     if image is None:
         raise ValueError(f"Unable to read image at {image_path}")
 
-    yolo_path = yolo_detection.process_image(image_path)
-    clip_path = clip_detection.process_image(image_path, 64)
+    if model == "yolo":
+        from src import yolo_detection as detection
+    elif model == "clip":
+        from src import clip_detection as detection
+    else:
+        raise ValueError(f"Unable to load model: {model}")
+
+    processed_path = detection.process_image(image_path)
 
     acne_image = detect_acne(image.copy())
     redness_image = detect_redness(image.copy())
-    uneven_tone_image = detect_uneven_tone(image.copy())
 
-    paths = [yolo_path, clip_path]
+    paths = [processed_path]
     for img, problem in (
         (acne_image, "acne"),
         (redness_image, "redness"),
-        (uneven_tone_image, "uneven_tone"),
     ):
         paths.append(save_image(img, problem, image_path))
 

@@ -24,7 +24,7 @@ def divide_image(image_path, segment_size):
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load("models/ViT-B-16.pt", device=device)
+model, preprocess = clip.load("models/clip.pt", device=device)
 
 labels = [
     "skin with trouble (acne, pimples, wrinkles, redness)",
@@ -62,7 +62,7 @@ def mark_segments(image, segments):
     return image
 
 
-def process_image(image_path, segment_size):
+def process_image(image_path, segment_size=64):
     segments, full_image = divide_image(image_path, segment_size)
     marked_image = mark_segments(full_image, segments)
 
