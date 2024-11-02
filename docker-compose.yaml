@@ -1,0 +1,76 @@
+services:
+
+  db:
+    image: postgres
+    container_name: detection-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - skin-care-ai
+
+  migrations:
+    build:
+      dockerfile: docker/Dockerfile-migrations
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWD}
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - skin-care-ai
+
+  detection-app:
+    build:
+      dockerfile: docker/Dockerfile-app
+      args:
+        MODEL: yolo
+    container_name: detection-app
+    command: ["-p", "8080"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${PWD}/files/processed:/app/files/processed
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8080/" ]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    networks:
+      - skin-care-ai
+
+  research-jupyter:
+    build:
+      dockerfile: docker/Dockerfile-jupyter
+    container_name: research-jupyter
+    env_file:
+      - .env
+    ports:
+      - "8888:8888"
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  skin-care-ai:
+    driver: bridge

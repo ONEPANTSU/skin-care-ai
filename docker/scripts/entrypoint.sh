@@ -14,4 +14,4 @@ while getopts "p:" opt; do
   esac
 done
 
-python -m src.server -m "$MODEL" -p $PORT
+python -m src.main -m "$MODEL" -p $PORT

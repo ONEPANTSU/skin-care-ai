@@ -1,7 +1,6 @@
 FROM python:3.12
 
 WORKDIR /app
-VOLUME files/processed files/processed
 
 ARG MODEL=yolo
 ENV MODEL=$MODEL

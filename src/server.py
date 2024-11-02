@@ -1,25 +1,25 @@
 import os
-import argparse
 import logging
-import sys
+from dataclasses import dataclass
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
-import uvicorn
-from src.skin_ai import process_image, PROCESSED_PATH
+from src.skin_cv import process_image, PROCESSED_PATH
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    stream=sys.stdout,
-)
 
-app = FastAPI()
+@dataclass
+class Context:
+    model: str | None = None
+
+
+class App(FastAPI):
+    ctx = Context()
+
+
+app = App()
 
 app.mount("/static", StaticFiles(directory="templates"), name="static")
-
-model = None
 
 
 @app.get("/")
@@ -36,7 +36,7 @@ async def upload_image(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        processed_paths = process_image(file_path, model)
+        processed_paths = process_image(file_path, app.ctx.model)
         logging.info(
             f"Successfully processed image. Generated files: {processed_paths}"
         )
@@ -54,15 +54,3 @@ async def get_processed_image(filename: str):
         return FileResponse(file_path)
     logging.warning(f"Processed image not found: {filename}")
     raise HTTPException(status_code=404, detail="File not found")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Skin disease detection")
-    parser.add_argument("--port", "-p", type=int, help="Server's port", default=8080)
-    parser.add_argument(
-        "--model", "-m", type=str, help="Detection model", default="yolo"
-    )
-    port = parser.parse_args().port
-    model = parser.parse_args().model
-    logging.info(f"Server starting on http://localhost:{port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)

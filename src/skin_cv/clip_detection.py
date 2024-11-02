@@ -71,10 +71,3 @@ def process_image(image_path, segment_size=64):
     save_path = os.path.join(PROCESSED_PATH, f"{name}_clip{ext}")
     marked_image.save(save_path)
     return os.path.basename(save_path)
-
-
-if __name__ == "__main__":
-    image_path = "files/processed/i.webp"
-    segment_size = 64
-
-    process_image(image_path, segment_size)

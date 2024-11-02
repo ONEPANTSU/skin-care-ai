@@ -1,0 +1,12 @@
+FROM python:3.12
+
+WORKDIR /jupyter
+
+COPY ../requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY ../research/* .
+
+ENTRYPOINT ["jupyter", "notebook", "--allow-root", "--ServerApp.ip", "0.0.0.0"]
+CMD ["skin_care_genegpt.ipynb"]

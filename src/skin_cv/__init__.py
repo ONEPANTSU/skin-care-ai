@@ -158,9 +158,9 @@ def process_image(image_path: str, model: str) -> List[str]:
         raise ValueError(f"Unable to read image at {image_path}")
 
     if model == "yolo":
-        from src import yolo_detection as detection
+        from src.skin_cv import yolo_detection as detection
     elif model == "clip":
-        from src import clip_detection as detection
+        from src.skin_cv import clip_detection as detection
     else:
         raise ValueError(f"Unable to load model: {model}")
 
