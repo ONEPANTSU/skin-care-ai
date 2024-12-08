@@ -46,6 +46,7 @@ docker-compose up detection-db
 make minikube-run
 ```
 После запуска дашборд (`minikube dashboard --url`) должен выглядеть следующим образом:
+
 ![files/dashboard.jpg](files/dashboard.jpg)
 
 ## 🖼️ Интерфейс приложения SkinCare CV
