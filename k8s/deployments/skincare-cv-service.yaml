@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: skincare-cv-service
+  labels:
+    app: skincare-cv-app
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+  selector:
+    app: skincare-cv-app

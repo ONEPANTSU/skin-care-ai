@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skincare-genegpt-notebook
+  labels:
+    app: skincare-genegpt-notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skincare-genegpt-notebook
+  template:
+    metadata:
+      labels:
+        app: skincare-genegpt-notebook
+    spec:
+      containers:
+      - name: skincare-genegpt-notebook
+        image: onepantsu/skincare-genegpt:v1.0
+        ports:
+        - containerPort: 8888
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8888
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8888
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3

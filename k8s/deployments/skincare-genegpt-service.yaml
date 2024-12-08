@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: skincare-genegpt-service
+  labels:
+    app: skincare-genegpt-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8888
+  selector:
+    app: skincare-genegpt-app
