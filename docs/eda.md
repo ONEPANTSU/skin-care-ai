@@ -21,22 +21,22 @@ localization: back | lower extremity | scalp | ear | face etc.
 1. Частота классов - Frequency of Classes
 
 
-   ![Frequency Distribution of Classes](classes.jpg)
+   ![Frequency Distribution of Classes](images/eda/classes.jpg)
 
 
 2. Распределение кожных заболеваний по полу - Distribution of Skin disease over Gender
 
 
-   ![Gender of Patient](gender.jpg)
+   ![Gender of Patient](images/eda/gender.jpg)
 
 
 3. Гистограмма возраста пациентов - Histogram of the age of patients
 
 
-   ![Histogram of Age of Patients](age.jpg)
+   ![Histogram of Age of Patients](images/eda/age.jpg)
 
 
 4. Расположение заболевания в зависимости от пола - Location of disease over Gender
 
 
-   ![Location of disease over Gender](location.jpg)
+   ![Location of disease over Gender](images/eda/location.jpg)
