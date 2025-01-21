@@ -48,7 +48,7 @@ make minikube-run
 ```
 После запуска дашборд (`minikube dashboard --url`) должен выглядеть следующим образом:
 
-![files/dashboard.jpg](files/dashboard.jpg)
+![files/dashboard.jpg](docs/images/readme/dashboard.jpg)
 
 ## 🖼️ Интерфейс приложения SkinCare CV
-![files/example.jpg](files/example.jpg)
+![files/example.jpg](docs/images/readme/example.jpg)
