@@ -25,6 +25,8 @@
 </tr> 
 </table>
 
+Для сравнения можно обратиться к метрикам [бейзлайна](../src/skin_cv/cancer-baseline.ipynb)
+
 ### Confusion Matrix
 
 <table>

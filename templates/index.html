@@ -6,105 +6,131 @@
     <title>Skin Care AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Skin Care AI</h1>
-        <div class="flex justify-center">
-            <form id="uploadForm" class="w-full max-w-md">
-                <input type="file" id="imageInput" name="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" accept="image/*">
-                <button type="submit" class="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300">Upload Image</button>
-            </form>
-        </div>
-        <div id="loading" class="mt-4 text-center hidden">
-            <p class="text-gray-600">Processing image... Please wait.</p>
-        </div>
-        <div id="error" class="mt-4 text-center hidden">
-            <p class="text-red-500"></p>
-        </div>
-        <div id="results" class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+<div class="container mx-auto p-4 flex-grow flex flex-col">
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Skin Care AI</h1>
+    <div class="flex justify-center mb-8">
+        <form id="uploadForm" class="w-full max-w-md">
+            <input type="file" id="imageInput" name="file"
+                   class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                   accept="image/*">
+            <button type="submit"
+                    class="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300">
+                Upload Image
+            </button>
+        </form>
     </div>
-    <script>
-        const uploadForm = document.getElementById('uploadForm');
-        const resultsDiv = document.getElementById('results');
-        const loadingDiv = document.getElementById('loading');
-        const errorDiv = document.getElementById('error');
+    <div id="loading" class="text-center hidden">
+        <p class="text-gray-600">Processing image... Please wait.</p>
+    </div>
+    <div id="error" class="text-center hidden">
+        <p class="text-red-500"></p>
+    </div>
+    <div id="results" class="flex-grow flex justify-center items-center">
+        <!-- The card will be inserted here -->
+    </div>
+</div>
+<script>
+    const uploadForm = document.getElementById('uploadForm');
+    const resultsDiv = document.getElementById('results');
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
 
-        function showLoading() {
-            loadingDiv.classList.remove('hidden');
-            errorDiv.classList.add('hidden');
-            resultsDiv.innerHTML = '';
+    function showLoading() {
+        loadingDiv.classList.remove('hidden');
+        errorDiv.classList.add('hidden');
+        resultsDiv.innerHTML = '';
+    }
+
+    function hideLoading() {
+        loadingDiv.classList.add('hidden');
+    }
+
+    function showError(message) {
+        errorDiv.classList.remove('hidden');
+        errorDiv.querySelector('p').textContent = message;
+    }
+
+    function getCancerClasses(cancerClasses) {
+        if (!cancerClasses || cancerClasses.length === 0) {
+            return "nothing was found";
+        } else {
+            const classMapping = {
+                'nv': 'Melanocytic nevi',
+                'mel': 'Melanoma',
+                'bkl': 'Benign keratosis',
+                'bcc': 'Basal cell carcinoma',
+                'akiec': 'Actinic keratoses',
+                'vasc': 'Vascular lesions',
+                'df': 'Dermatofibroma'
+            };
+            return cancerClasses.map(cls => classMapping[cls] || cls).join(", ");
+        }
+    }
+
+    function createImageCard(fileUrl, title, classes) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-lg overflow-hidden max-w-md w-full';
+
+        const img = document.createElement('img');
+        img.src = `/processed/${fileUrl}`;
+        img.alt = title;
+        img.className = 'w-full h-auto object-contain';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'p-4';
+        titleDiv.innerHTML = `<h2 class="text-xl font-semibold text-gray-800">${title}: ${getCancerClasses(classes)}</h2>`;
+
+        card.appendChild(img);
+        card.appendChild(titleDiv);
+        return card;
+    }
+
+    uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const fileInput = document.getElementById('imageInput');
+        const file = fileInput.files[0];
+        if (!file) {
+            showError('Please select an image');
+            return;
         }
 
-        function hideLoading() {
-            loadingDiv.classList.add('hidden');
-        }
+        showLoading();
 
-        function showError(message) {
-            errorDiv.classList.remove('hidden');
-            errorDiv.querySelector('p').textContent = message;
-        }
+        const formData = new FormData();
+        formData.append('file', file);
 
-        function createImageCard(fileUrl, title) {
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-lg shadow-lg overflow-hidden';
-            
-            const img = document.createElement('img');
-            img.src = `/processed/${fileUrl}`;
-            img.alt = title;
-            img.className = 'w-full h-64 object-cover';
-            
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'p-4';
-            titleDiv.innerHTML = `<h2 class="text-xl font-semibold text-gray-800">${title}</h2>`;
-            
-            card.appendChild(img);
-            card.appendChild(titleDiv);
-            return card;
-        }
+        try {
+            const response = await fetch('/upload/', {
+                method: 'POST',
+                body: formData
+            });
 
-        uploadForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const fileInput = document.getElementById('imageInput');
-            const file = fileInput.files[0];
-            if (!file) {
-                showError('Please select an image');
-                return;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            showLoading();
+            const result = await response.json();
 
-            const formData = new FormData();
-            formData.append('file', file);
+            if (result.success && result.data) {
+                resultsDiv.innerHTML = '';
 
-            try {
-                const response = await fetch('/upload/', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.success) {
-                    resultsDiv.innerHTML = '';
-                    const titles = ['Model\'s Acne Detection', 'Acne Detection', 'Redness Detection',];
-                    result.data.forEach((fileUrl, index) => {
-                        const card = createImageCard(fileUrl, titles[index]);
-                        resultsDiv.appendChild(card);
-                    });
+                if (result.data.paths && result.data.paths.length > 0) {
+                    const cancerCard = createImageCard(result.data.paths[0], 'Cancer Detection', result.data.cancer);
+                    resultsDiv.appendChild(cancerCard);
                 } else {
-                    throw new Error(result.error || 'Unknown error occurred');
+                    showError('No processed images returned from the server');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                showError(`Error: ${error.message}`);
-            } finally {
-                hideLoading();
+            } else {
+                throw new Error(result.error || 'Unknown error occurred');
             }
-        });
-    </script>
+        } catch (error) {
+            console.error('Error:', error);
+            showError(`Error: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    });
+</script>
 </body>
 </html>

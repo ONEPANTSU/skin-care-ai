@@ -14,17 +14,10 @@
 
 ## ⭐️ Запуск приложения
 ### Запуск приложения через Docker:
-1. **Build**:
+1. **Model**: разместите веса модели относительно корневой директории проекта `./models/yolo.pt`
+2. **Build**:
     ```bash
-    make docker-build MODEL=yolo
-    ```
-    Аргумент MODEL может принимать значения в соответствии с названиями моделей:
-    - `yolo`
-    - `clip`
-   
-2. **Run**:
-    ```bash
-    make docker-run PORT=8000
+    make docker-local PORT=8080
     ```
    
 ### Запуск через docker-compose:
@@ -57,4 +50,4 @@ make minikube-run
 ![files/dashboard.jpg](docs/images/readme/dashboard.jpg)
 
 ## 🖼️ Интерфейс приложения SkinCare CV
-![files/example.jpg](docs/images/readme/example.jpg)
+![files/example.jpg](docs/images/readme/example.png)

@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 import mediapipe as mp
-from typing import List
+from typing import List, Tuple
 import logging
 
 from src.config import PROCESSED_PATH
@@ -151,7 +151,7 @@ def remove_background(image):
     return image * mask2[:, :, np.newaxis]
 
 
-def process_image(image_path: str, model: str) -> List[str]:
+def process_image(image_path: str, model: str) -> Tuple[List[str], List[str]]:
     logging.info(f"Processing image: {image_path}")
     image = cv2.imread(image_path)
     if image is None:
@@ -164,17 +164,11 @@ def process_image(image_path: str, model: str) -> List[str]:
     else:
         raise ValueError(f"Unable to load model: {model}")
 
-    processed_path = detection.process_image(image_path)
+    cancer_path, cancer_classes = detection.process_image(image_path)
 
-    acne_image = detect_acne(image.copy())
-    redness_image = detect_redness(image.copy())
+    # acne_path = save_image(detect_acne(image.copy()), "acne", image_path)
 
-    paths = [processed_path]
-    for img, problem in (
-        (acne_image, "acne"),
-        (redness_image, "redness"),
-    ):
-        paths.append(save_image(img, problem, image_path))
+    paths = [cancer_path]
 
     logging.info(f"Image processing complete. Generated files: {paths}")
-    return paths
+    return paths, cancer_classes
