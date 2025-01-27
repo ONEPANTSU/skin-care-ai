@@ -36,11 +36,19 @@ async def upload_image(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        processed_paths = process_image(file_path, app.ctx.model)
+        processed_paths, cancer_classes = process_image(file_path, app.ctx.model)
         logging.info(
             f"Successfully processed image. Generated files: {processed_paths}"
         )
-        return JSONResponse(content={"success": True, "data": processed_paths})
+        return JSONResponse(
+            content={
+                "success": True,
+                "data": {
+                    "paths": processed_paths,
+                    "cancer": cancer_classes
+                },
+            }
+        )
     except Exception as e:
         logging.error(f"Error processing image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

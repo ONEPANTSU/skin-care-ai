@@ -1,0 +1,24 @@
+FROM python:3.12
+
+WORKDIR /app
+
+ENV MODEL=yolo
+
+RUN apt update && apt install -y \
+  libgl1-mesa-glx libglib2.0-0 git\
+  && apt clean \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY docker/scripts/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY models/yolo.pt /app/models/yolo.pt
+RUN chmod +x /app/models/yolo.pt
+
+COPY ../requirements.txt .
+RUN pip install -r requirements.txt --default-timeout=100
+
+COPY ../templates templates/
+COPY ../src src/
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["-p", "8000"]

@@ -3,6 +3,10 @@
 run:
 	python -m src.main -m $(MODEL)
 
+docker-local:
+	docker build -f docker/Dockerfile-local . -t skincare-cv
+	docker run -d --name skincare-cv -p $(PORT):$(PORT) -v ./files/processed:/app/files/processed skincare-cv -p $(PORT)
+
 docker-build:
 	docker build -f docker/Dockerfile-app . -t skincare-cv --build-arg MODEL=$(MODEL)
 
