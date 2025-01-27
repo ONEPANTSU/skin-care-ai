@@ -31,9 +31,9 @@
 
 <table>
 <tr>
-<td> <b> Labels </b> </td>
+<td> <b> Original </b> </td>
 
-<td> <b> Predictions </b> </td>
+<td> <b> Normalized </b> </td>
 </tr> 
 <tr>
 <td> <img src="./images/training/val3/confusion_matrix.png" alt="confusion matrix" width=512/></td>
